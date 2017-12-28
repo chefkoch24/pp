@@ -8,7 +8,7 @@ public class ThreadsafeLinkedNewList<T> implements NewList<T> {
         private T                    element;
         private ListElement<T>       prev;
         private final ListElement<T> next;
-        public ReentrantLock lock = new ReentrantLock();;
+        public ReentrantLock lock = new ReentrantLock();
 
         private ListElement(final T element, final ListElement<T> prev, final ListElement<T> next) {
             this.element = element;
@@ -29,17 +29,16 @@ public class ThreadsafeLinkedNewList<T> implements NewList<T> {
         ListElement<T> ptr =this.first;
         
         Lock current = ptr.lock;
+        current.lock();
         while (j++ < i) {
-        	// das aktuelle Element wird gelockt
-        	current.lock();
         	// das nächste Listenelement wird kurzfristig gelockt
         	Lock next = ptr.next.lock;
         	next.lock();
         	// das aktuelle Listenelement wird das aktuelle Listenelement
         	ptr = ptr.next;
-        	// das aktuelle Element wird freigegeben
+        	// das vorherige Element wird freigegeben
         	current.unlock();
-        	// das vorherige Element wird wieder freigegeben
+        	// das aktuelle Element wird gesetzt
         	current = next;
         	
         }        
@@ -76,9 +75,9 @@ public class ThreadsafeLinkedNewList<T> implements NewList<T> {
         ListElement<T> ptr = this.first;
         
         //gleiche Prinzip wie beim get
-        Lock current = ptr.lock;       
+        Lock current = ptr.lock;
+        current.lock();
         while (j++ < i) {
-        	current.lock();
         	Lock next = ptr.next.lock;
         	next.lock();
             ptr = ptr.next;
